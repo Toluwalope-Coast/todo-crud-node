@@ -5,12 +5,13 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    categoryId: {
-        type: Number,
+    category_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'categories',
         required: true
     },
-    status: {
-        type: Number,
+    task_status: {
+        type: String,
         required: true
     }
 }, { timestamps: true }

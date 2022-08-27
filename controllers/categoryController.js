@@ -5,12 +5,14 @@ const category = require("../models/category_model");
 //Get all category
 const getCategory = async (req, res) => {
     const categories = await category.find({}).sort({ createdAt: -1 });
+    console.log("this is without id")
 
-    res.status(200).json(category)
+    res.status(200).json(categories)
 }
 //Get a single category
 const getSingleCategory = async (req, res) => {
     const { id } = req.params
+    console.log(`This is the id`)
 
     // Check id is valid
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -18,24 +20,25 @@ const getSingleCategory = async (req, res) => {
     }
 
     // find id is valid
-    const category = await category.findById(id)
+    const categories = await category.findById(id)
 
-    if (!category) {
+    if (!categories) {
         return res.status(404).json({ error: 'No such category' })
     }
-    res.status(200).json(category)
+    res.status(200).json(categories)
 }
 
 //Create a new category
 
 const createCategory = async (req, res) => {
     //extracting the data from the request
-    const { name, no_of_tasks } = req.body;
+    const { name, no_of_tasks, } = req.body;
 
     //Add document to db
     try {
-        const category = await category.create({ name, no_of_tasks });
-        res.status(201).json(category);
+
+        const categories = await category.create({ name, no_of_tasks });
+        res.status(201).json(categories);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -51,12 +54,12 @@ const deleteCategory = async (req, res) => {
     }
 
     // find id is valid
-    const category = await category.findOneAndDelete({ _id: id })
+    const categories = await category.findOneAndDelete({ _id: id })
 
-    if (!category) {
+    if (!categories) {
         return res.status(404).json({ error: 'No such category' })
     }
-    res.status(200).json(category)
+    res.status(200).json(categories)
 
 }
 
@@ -71,12 +74,12 @@ const UpdateCategory = async (req, res) => {
     }
 
     // find id is valid
-    const category = await category.findOneAndUpdate({ _id: id }, { ...req.body })
+    const categories = await category.findOneAndUpdate({ _id: id }, { ...req.body })
 
-    if (!category) {
+    if (!categories) {
         return res.status(404).json({ error: 'No such category' })
     }
-    res.status(200).json(category)
+    res.status(200).json(categories)
 }
 
 module.exports = {

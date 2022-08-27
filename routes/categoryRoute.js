@@ -5,7 +5,7 @@ const {
     getSingleCategory,
     deleteCategory,
     UpdateCategory
-} = require("../controllers/CategoryController");
+} = require("../controllers/categoryController");
 const routerCategory = express.Router();
 
 //Get all Category

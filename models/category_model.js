@@ -5,7 +5,7 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    noOfTask: {
+    no_of_tasks: {
         type: Number,
         required: true
     }
