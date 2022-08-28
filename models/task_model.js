@@ -10,10 +10,15 @@ const taskSchema = new mongoose.Schema({
         ref: 'categories',
         required: true
     },
-    task_status: {
+    category_name: {
         type: String,
         required: true
+    },
+    task_status: {
+        type: String,
+        default: 'on-going'
     }
+
 }, { timestamps: true }
 );
 

@@ -30,7 +30,7 @@ const getSingleTasks = async (req, res) => {
 
 const createTasks = async (req, res) => {
     //extracting the data from the request
-    const { title, category_id, task_status } = req.body;
+    const { title, category_id } = req.body;
 
     //check if category id exists
 
@@ -42,7 +42,8 @@ const createTasks = async (req, res) => {
 
     //Add document to db
     try {
-        const task = await tasks.create({ title, category_id, task_status });
+        console.log(category_id)
+        const task = await tasks.create({ title, category_id, category_name: categories.name });
         res.status(201).json(task);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -70,25 +71,41 @@ const deleteTasks = async (req, res) => {
 //Update a tasks
 const UpdateTasks = async (req, res) => {
     const { id } = req.params;
-    const { task_status } = req.body;
+    const { task_status, category_id, title } = req.body;
+    let category_name = ""
 
     // Check id is valid
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ error: "No such tasks" });
     }
+    // Check category id is valid
+    try {
+        const categories = await category.findById(category_id);
+        category_name = categories.name
+
+    } catch (error) {
+        return res.status(404).json({ error: "No such category Id" });
+    }
+
     //Handle the condition that updates the status to completed
     if (task_status == "completed") {
-        const task = await tasks.findById(id);
 
-        const { category_id, updatedAt } = task.toJSON();
-        const check_date = new Date(updatedAt.toISOString());
+        const task = await tasks.findById(id); //retrieving all the tasks
+
+        const { category_id, updatedAt } = task.toJSON(); //extracting the category id and last updated date of this task
+        const current_task_date = new Date(updatedAt.toISOString());// converting the date for use
+
+        /******** Retrieving only tasks with 
+         * 1. status of not completed
+         * 2. share the same Category Id
+         * 3. whose date are created or updated earlier than this current task*********** */
 
         const task_categories = await tasks.find({
             task_status: { $ne: "completed" },
             category_id: category_id.toString(),
-            updatedAt: { $lte: check_date },
+            updatedAt: { $lte: current_task_date }, //less than the current date date
         });
-
+        // Check if there are more than one of such task
         if (task_categories.length > 1) {
             return res
                 .status(400)
@@ -99,13 +116,14 @@ const UpdateTasks = async (req, res) => {
         }
     }
 
-    // find id is valid
-    const task = await tasks.findOneAndUpdate({ _id: id }, { ...req.body });
-
-    if (!task) {
-        return res.status(404).json({ error: "No such tasks" });
+    // Updates the Database
+    try {
+        const task = await tasks.findOneAndUpdate({ _id: id }, { title, category_id, category_name, task_status });
+        res.status(200).json(task);
+    } catch (error) {
+        return res.status(404).json({ error: error.message });
     }
-    res.status(200).json(task);
+
 };
 
 module.exports = {
